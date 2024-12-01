@@ -13,20 +13,20 @@ function App() {
   const [totalPayment, setTotalPayment] = useState(0);
 
   const calculateRepayments = () => {
-    const principal = amount;
-    const monthlyRate = rate / 100 / 12;
-    const totalMonths = term * 12;
+    const principal = parseFloat(amount);
+    const monthlyRate = parseFloat(rate) / 100 / 12;
+    const totalMonths = parseInt(term, 10) * 12;
 
     if (type === 'repayment') {
       const monthly =
         (principal * monthlyRate) /
         (1 - Math.pow(1 + monthlyRate, -totalMonths));
-      setMonthlyPayment(monthly.toFixed(2));
-      setTotalPayment((monthly * totalMonths).toFixed(2));
+      setMonthlyPayment(isNaN(monthly) ? 0 : monthly.toFixed(2));
+      setTotalPayment(isNaN(monthly) ? 0 : (monthly * totalMonths).toFixed(2));
     } else {
       const monthly = principal * monthlyRate;
-      setMonthlyPayment(monthly.toFixed(2));
-      setTotalPayment((monthly * totalMonths).toFixed(2));
+      setMonthlyPayment(isNaN(monthly) ? 0 : monthly.toFixed(2));
+      setTotalPayment(isNaN(monthly) ? 0 : (monthly * totalMonths).toFixed(2));
     }
   };
 
@@ -41,7 +41,7 @@ function App() {
 
   return (
     <div className="wrapper">
-      <header className="header">
+      <header className="">
         <div className="container header__container">
           <h2 className="header-title">Mortgage Calculator</h2>
           <button className="header-end" onClick={resetForm}>
@@ -59,8 +59,11 @@ function App() {
               className="number"
               type="number"
               value={amount}
-              onChange={(e) => setAmount(Math.max(0, e.target.value))}
+              onChange={(e) =>
+                setAmount(Math.max(0, parseFloat(e.target.value) || 0))
+              }
               placeholder="Enter amount in £"
+              required
             />
           </div>
 
@@ -70,8 +73,11 @@ function App() {
               <input
                 type="number"
                 value={term}
-                onChange={(e) => setTerm(Math.max(0, e.target.value))}
+                onChange={(e) =>
+                  setTerm(Math.max(0, parseInt(e.target.value, 10) || 0))
+                }
                 placeholder="Enter term in years"
+                required
               />
             </div>
             <div>
@@ -79,8 +85,11 @@ function App() {
               <input
                 type="number"
                 value={rate}
-                onChange={(e) => setRate(Math.max(0, e.target.value))}
+                onChange={(e) =>
+                  setRate(Math.max(0, parseFloat(e.target.value) || 0))
+                }
                 placeholder="Enter rate in %"
+                required
               />
             </div>
           </div>
@@ -96,8 +105,14 @@ function App() {
             }`}
             onClick={() => setType('repayment')}
           >
-            <img src={yellow} alt="yellow" />
-            <h4>Repayment</h4>
+            <img src={yellow} alt="Repayment Type Icon" />
+            <input
+              type="radio"
+              name="mortgageType"
+              checked={type === 'repayment'}
+              readOnly
+            />
+            <h3>Repayment</h3>
           </div>
           <div
             className={`section-white ${
@@ -105,7 +120,13 @@ function App() {
             }`}
             onClick={() => setType('interestOnly')}
           >
-            <img src={white} alt="white" />
+            <img src={white} alt="Interest Only Type Icon" />
+            <input
+              type="radio"
+              name="mortgageType"
+              checked={type === 'interestOnly'}
+              readOnly
+            />
             <h4>Interest Only</h4>
           </div>
         </div>
@@ -114,7 +135,7 @@ function App() {
       <footer className="footer">
         <div className="container footer__container">
           <button className="footer-btn" onClick={calculateRepayments}>
-            <img src={calculator} alt="calculator" />
+            <img src={calculator} alt="Calculator Icon" />
             <h2>Calculate Repayments</h2>
           </button>
           <div className="results">
