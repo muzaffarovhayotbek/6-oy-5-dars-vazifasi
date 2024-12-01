@@ -1,7 +1,5 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import calculator from './assets/calculator.svg';
-import yellow from './assets/yellow-icon.svg';
-import white from './assets/white.svg';
 import './App.css';
 
 function App() {
@@ -11,6 +9,10 @@ function App() {
   const [type, setType] = useState('repayment');
   const [monthlyPayment, setMonthlyPayment] = useState(0);
   const [totalPayment, setTotalPayment] = useState(0);
+
+  const curRes = (value) => {
+    return new Intl.NumberFormat('en-GB').format(value);
+  };
 
   const calculateRepayments = () => {
     const principal = parseFloat(amount);
@@ -31,119 +33,121 @@ function App() {
   };
 
   const resetForm = () => {
-    setAmount(0);
-    setTerm(0);
-    setRate(0);
-    setType('repayment');
-    setMonthlyPayment(0);
-    setTotalPayment(0);
+    const confirmClear = window.confirm('Rostdan ham o‘chirmoqchimisiz?');
+    if (confirmClear) {
+      setAmount(0);
+      setTerm(0);
+      setRate(0);
+      setType('repayment');
+      setMonthlyPayment(0);
+      setTotalPayment(0);
+    }
   };
 
   return (
-    <div className="wrapper">
-      <header className="">
-        <div className="container header__container">
-          <h2 className="header-title">Mortgage Calculator</h2>
-          <button className="header-end" onClick={resetForm}>
-            Clear All
-          </button>
+    <div className="container shadow bg-white rounded flex items-center justify-center">
+      <div className="form-section">
+        <div className="header">
+          <h1>Mortgage Calculator</h1>
+          <button onClick={resetForm}>Clear All</button>
         </div>
-      </header>
-
-      <main className="main">
-        <div className="container main__container">
-          <h2>Mortgage Amount</h2>
-          <div className="input-group">
-            <span>£</span>
+        <div className="input-container">
+          <label htmlFor="mortgage">Mortgage Amount</label>
+          <div className="input-wrapper">
+            <button>£</button>
             <input
-              className="number"
+              id="mortgage"
               type="number"
               value={amount}
+              placeholder="Enter amount in £"
               onChange={(e) =>
                 setAmount(Math.max(0, parseFloat(e.target.value) || 0))
               }
-              placeholder="Enter amount in £"
-              required
             />
           </div>
+        </div>
 
-          <div className="rate-section">
-            <div>
-              <h2>Mortgage Term</h2>
+        <div className="flex-row">
+          <div className="input-container">
+            <label htmlFor="calc-year">Mortgage Term</label>
+            <div className="input-wrapper">
               <input
+                id="calc-year"
                 type="number"
                 value={term}
-                onChange={(e) =>
-                  setTerm(Math.max(0, parseInt(e.target.value, 10) || 0))
-                }
                 placeholder="Enter term in years"
-                required
+                onChange={(e) =>
+                  setTerm(Math.max(0, parseFloat(e.target.value) || 0))
+                }
               />
+              <button>years</button>
             </div>
-            <div>
-              <h2>Interest Rate</h2>
+          </div>
+          <div className="input-container">
+            <label htmlFor="rate">Interest Rate</label>
+            <div className="input-wrapper">
               <input
+                id="rate"
                 type="number"
                 value={rate}
+                placeholder="Enter interest rate"
                 onChange={(e) =>
                   setRate(Math.max(0, parseFloat(e.target.value) || 0))
                 }
-                placeholder="Enter rate in %"
-                required
               />
+              <button>%</button>
             </div>
           </div>
         </div>
-      </main>
 
-      <section>
-        <div className="container">
-          <h2 className="section-title">Mortgage Type</h2>
-          <div
-            className={`section-yellow ${
-              type === 'repayment' ? 'selected' : ''
-            }`}
-            onClick={() => setType('repayment')}
-          >
-            <img src={yellow} alt="Repayment Type Icon" />
+        <div className="radio-container">
+          <label>Mortgage Type</label>
+          <div className="radio-wrapper">
             <input
+              id="repayment"
               type="radio"
               name="mortgageType"
+              value="repayment"
               checked={type === 'repayment'}
-              readOnly
+              onChange={() => setType('repayment')}
             />
-            <h3>Repayment</h3>
+            <label htmlFor="repayment">Repayment</label>
           </div>
-          <div
-            className={`section-white ${
-              type === 'interestOnly' ? 'selected' : ''
-            }`}
-            onClick={() => setType('interestOnly')}
-          >
-            <img src={white} alt="Interest Only Type Icon" />
+          <div className="radio-wrapper">
             <input
+              id="only"
               type="radio"
               name="mortgageType"
+              value="interestOnly"
               checked={type === 'interestOnly'}
-              readOnly
+              onChange={() => setType('interestOnly')}
             />
-            <h4>Interest Only</h4>
+            <label htmlFor="only">Interest only</label>
           </div>
         </div>
-      </section>
 
-      <footer className="footer">
-        <div className="container footer__container">
-          <button className="footer-btn" onClick={calculateRepayments}>
-            <img src={calculator} alt="Calculator Icon" />
-            <h2>Calculate Repayments</h2>
-          </button>
-          <div className="results">
-            <h3>Your Monthly Payment: £{monthlyPayment}</h3>
-            <h3>Total Payment: £{totalPayment}</h3>
-          </div>
+        <button onClick={calculateRepayments} className="button">
+          <img src={calculator} alt="Calculator Icon" />
+          Calculate Repayments
+        </button>
+      </div>
+
+      <div className="results">
+        <h2>Your results</h2>
+        <p>
+          Your results are shown below based on the information you provided. To
+          adjust the results, edit the form and click "Calculate Repayments"
+          again.
+        </p>
+        <div className="highlight">
+          <p>Your monthly repayments</p>
+          <h3>£{curRes(monthlyPayment)}</h3>
         </div>
-      </footer>
+        <div>
+          <p>Total payment</p>
+          <h3>£{curRes(totalPayment)}</h3>
+        </div>
+      </div>
     </div>
   );
 }
